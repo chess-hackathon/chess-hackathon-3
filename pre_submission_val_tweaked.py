@@ -26,7 +26,7 @@ model0 = Model(**model_config)
 
 # checkpoint loading
 checkpoint = torch.load("submission/checkpoint.pt", map_location=torch.device('cpu'))
-model0.load_state_dict(checkpoint["state_dict"])
+model0.load_state_dict(checkpoint["model"])
 
 # model inference
 pgn = "1.d4 Nf6 2.c4 d5 3.Nf3 e6 4.Nc3 Nc6 5."

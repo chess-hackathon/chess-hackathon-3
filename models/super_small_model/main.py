@@ -170,8 +170,8 @@ class Driver:
         model_weight_path = 'models/super_small_model/model_weights/model_epoch_60.pth'
 
         #model = ZeroNet(num_res_blocks=0)
-        #model = SimpleCNN() #CAN SWAP MODEL HERE
-        model = BiggerNet()
+        model = SimpleCNN() #CAN SWAP MODEL HERE
+        #model = BiggerNet()
         #model.apply(init_weights)
         files = list(Path(args.dataset_path).glob("*"))
         train_files, val_files, test_files = split_files(files)
@@ -185,7 +185,9 @@ class Driver:
             print("Finished training.")
             
         else: #load model 
-            model.load_state_dict(torch.load(model_weight_path))
+            with torch.no_grad():
+              #model.load_state_dict(torch.load(model_weight_path))
+              model.load_state_dict(torch.load(model_weight_path, map_location=torch.device('cpu')))
    
         eval_loss = test(model, test_dataset, args)
     
@@ -210,4 +212,4 @@ if __name__ == "__main__":
     parser.add_argument('--train_bs', type=int, default=32)
     parser.add_argument('--val_freq', type=int, default=5)
     args = parser.parse_args()
-    driver.main(args, True)
+    driver.main(args, False)

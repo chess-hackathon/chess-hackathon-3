@@ -1,4 +1,4 @@
-from hackathon_train.train import VisionTransformerTwoHeads
+from models.super_small_model.model import SimpleCNN
 from torch import nn
 
 import io
@@ -60,17 +60,9 @@ def leela_policy_to_uci_moves(policy, flip):
 class Model(nn.Module):
     def __init__(self, model):
         super().__init__()
-        self.model = VisionTransformerTwoHeads(
-            in_channels=model['in_channels'],
-            patch_size=model['patch_size'],
-            embed_dim=model['embed_dim'],
-            num_heads=model['num_heads'],
-            num_layers=model['num_layers'],
-            num_classes1=model['num_classes1'],
-            num_classes2=model['num_classes2']
+        self.model = SimpleCNN(
+            num_filters=model["num_filters"]
         )
-        self.criterion1 = nn.MSELoss()
-        self.criterion2 = nn.MSELoss()
 
         self.board = None
         self.pgn = None
