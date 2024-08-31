@@ -137,17 +137,32 @@ def main(config_path):
     print(f"{save_dir=}")
 
     # Set up callbacks
+    checkpoint_dir = root_dir + '/checkpoints/' + config['name']['job_name']
+    if not os.path.exists(checkpoint_dir):
+        try:
+            os.makedirs(checkpoint_dir, exist_ok=True)
+        except FileExistsError:
+            pass
+
+    print("Directory already exists")
     checkpoint_callback = AtomicModelCheckpoint(
-        dirpath=root_dir+'/checkpoints/' + config['name']['job_name'],
-        filename=config['name']['job_name'],
-        save_top_k=-1,
-        monitor='train_loss',
-        mode='min',
-        every_n_train_steps = config['training']['every_n_train_steps']
-    )
+    dirpath=checkpoint_dir,
+    filename=config['name']['job_name'],
+    save_top_k=-1,
+    monitor='train_loss',
+    mode='min',
+    every_n_train_steps = config['training']['every_n_train_steps']
+)
 
     # Set up logger
-    logger = TensorBoardLogger(root_dir+"/lightning_logs/"+config['name']['job_name'], name="vision_transformer")
+    tb_dir = root_dir+"/lightning_logs/"+config['name']['job_name']
+    if not os.path.exists(tb_dir):
+        try:
+            os.makedirs(tb_dir, exist_ok=True)
+        except FileExistsError:
+            pass
+
+    logger = TensorBoardLogger(tb_dir, name="vision_transformer")
 
     is_cuda_available = torch.cuda.is_available()
     strategy = "auto"
