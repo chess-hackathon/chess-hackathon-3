@@ -17,7 +17,7 @@ import os
 
 from torch.utils.data import Dataset
 import tempfile
-
+from torch.optim.lr_scheduler import StepLR
 
 
 
@@ -82,11 +82,18 @@ class VisionTransformerLightning(pl.LightningModule):
 
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             self.parameters(), 
             lr=self.hparams.training['learning_rate'], 
             weight_decay=self.hparams.training['weight_decay']
         )
+        scheduler = {
+            'scheduler': StepLR(optimizer, step_size=self.hparams.training['lr_step_epochs'], gamma=self.hparams.training['gamma']),
+            'interval': 'step',  # 'epoch' or 'step' to update the scheduler at each epoch or each training step
+            'frequency': 1,       # how often to apply the scheduler
+            'reduce_on_plateau': False,  # for `ReduceLROnPlateau` scheduler, set to `True`
+            'monitor': 'train_loss',  # metric to monitor for `ReduceLROnPlateau`
+        }
         return optimizer
 
     def train_dataloader(self):
