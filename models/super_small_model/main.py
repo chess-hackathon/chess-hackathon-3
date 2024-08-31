@@ -90,7 +90,7 @@ def train(model, train_dataset, val_dataset, args):
             train_steps += 1
         
         avg_train_loss = train_loss / train_steps
-
+        print("Finish training batches")
         if epoch == 0 or epoch % args.val_freq != 0:
             log_message = f"Epoch: {epoch + 1} | Train Loss: {avg_train_loss:.6f}"
             print(log_message)
