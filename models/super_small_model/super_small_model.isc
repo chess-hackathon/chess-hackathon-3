@@ -1,0 +1,7 @@
+isc_project_id = "24ff0ab1-a3ee-4bc0-b923-33389ebfa15c"
+experiment_name = " super_small_leela"
+gpu_type = "24GB VRAM GPU"
+gpus = 8
+output_path = "~/chess-hackathon-3/models/super_small_model"
+dataset_id = "7c669806-414b-429c-aece-370565626684"
+command = "source ~/chess-hackathon-3/leelaenv/bin/activate && cd ~/chess-hackathon-3/ && torchrun --nnodes=$NNODES --nproc-per-node=$N_PROC --master_addr=$MASTER_ADDR --master_port=$MASTER_PORT --node_rank=$RANK models/super_small_model/main.py"
