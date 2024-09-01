@@ -21,13 +21,11 @@ def time_limit(seconds):
 
 # model instantiation
 model_config = yaml.safe_load(open("model_config.yaml"))
-print(model_config)
 model0 = Model(**model_config)
 
 # checkpoint loading
-checkpoint = torch.load('checkpoint.pt', map_location=torch.device('cpu'))
-model0.load_state_dict(checkpoint)
-#model0.load_state_dict(checkpoint["model"])
+checkpoint = torch.load("checkpoint.pt", map_location=torch.device('cpu'))
+model0.load_state_dict(checkpoint["model"])
 
 # model inference
 pgn = "1.d4 Nf6 2.c4 d5 3.Nf3 e6 4.Nc3 Nc6 5."
@@ -40,7 +38,7 @@ print("Outputs pass validation tests.")
 
 # testing gameplay
 model1 = Model(**model_config)
-model1.load_state_dict(checkpoint)#["state_dict"])
+model1.load_state_dict(checkpoint["model"])
 agent0, agent1 = Agent(model0), Agent(model1)
 gameplay_kwargs = {
     "agents": {'white': agent0, 'black': agent1},
