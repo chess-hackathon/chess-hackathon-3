@@ -68,12 +68,18 @@ def train(model, train_dataset, val_dataset, args):
     best_val_loss = float('inf')
 
     # train loop
-
+    patience_counter = 0
     for epoch in range(args.max_epochs):
         model.train()
         train_loss = 0.0
         train_steps = 0 
+    
         for batch_idx, output in enumerate(train_dataloader):
+            if train_steps % 100 == 0:
+                print(f"Train step: {train_steps}")
+            if train_steps % 1000 == 0:
+                logging.info(f"Train step: {train_step}")
+
             inputs, policy, orig_q,  = output[0],output[1],output[2],
             inputs, policy, orig_q, = inputs.to(device), policy.to(device), orig_q.to(device)
           
@@ -97,7 +103,7 @@ def train(model, train_dataset, val_dataset, args):
             logging.info(log_message)
         
         ### Val loss step ###
-        if epoch > 0 and epoch % args.val_freq == 0:
+        if epoch % args.val_freq == 0:
             model.eval()
             val_loss = 0.0
             val_steps = 0 
@@ -121,9 +127,21 @@ def train(model, train_dataset, val_dataset, args):
 
             # save best model 
             if avg_val_loss < best_val_loss:
+                patience_counter = 0
                 best_val_loss = avg_val_loss
-                torch.save(model.state_dict(), f"{args.save_dir}/best_model_loss_{best_val_loss}.pth")
+                checkpoint = {
+                    "model" : model.state_dict()
+                }
+                torch.save(checkpoint, f"{args.save_dir}/best_model_loss_{best_val_loss:.6f}.pth")
                 print("Saved best model.")
+            # early stopping check
+            else:
+                patience_counter += 1
+                if patience_counter >= args.patience:
+                    print(f"Early stopping triggered. No improvement for {patience_counter} steps")
+                    break 
+             
+            
 
     print("Training completed.")        
         
@@ -170,8 +188,8 @@ class Driver:
         model_weight_path = 'models/super_small_model/model_weights/model_epoch_60.pth'
 
         #model = ZeroNet(num_res_blocks=0)
-        model = SimpleCNN() #CAN SWAP MODEL HERE
-        #model = BiggerNet()
+        #model = SimpleCNN() #CAN SWAP MODEL HERE
+        model = BiggerNet()
         #model.apply(init_weights)
         files = list(Path(args.dataset_path).glob("*"))
         train_files, val_files, test_files = split_files(files)
@@ -196,11 +214,11 @@ if __name__ == "__main__":
     driver = Driver()
     parser = ArgumentParser()
     # These parameters control the data pipeline
-    parser.add_argument("--dataset_path", type=Path, default='/home/justin/Desktop/Code/chess-hackathon-3/small_data')
+    parser.add_argument("--dataset_path", type=Path, default='/data')
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--shuffle_buffer_size", type=int, default=2 ** 19)
-    parser.add_argument("--skip_factor", type=int, default=32)
+    parser.add_argument("--skip_factor", type=int, default=4)
     parser.add_argument("--save_dir", type=Path, default='models/super_small_model/model_weights')
     # These parameters control the loss calculation. They should not be changed unless you
     # know what you're doing, as the loss values you get will not be comparable with other
@@ -210,6 +228,7 @@ if __name__ == "__main__":
     #These parameters control the training
     parser.add_argument('--max_epochs', type=int, default=100)
     parser.add_argument('--train_bs', type=int, default=32)
-    parser.add_argument('--val_freq', type=int, default=5)
+    parser.add_argument('--val_freq', type=int, default=1)
+    parser.add_argument('--patience', type=int, default=2)
     args = parser.parse_args()
-    driver.main(args, False)
+    driver.main(args, True)
