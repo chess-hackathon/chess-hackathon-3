@@ -3,7 +3,7 @@ import torch
 import yaml
 import signal
 from contextlib import contextmanager
-from submission.model import Model
+from model import Model
 from utils.chess_gameplay import Agent, play_game
 
 TIME_LIMIT_SECONDS = 120
@@ -20,12 +20,12 @@ def time_limit(seconds):
         signal.alarm(0)
 
 # model instantiation
-model_config = yaml.safe_load(open("submission/model_config.yaml"))
+model_config = yaml.safe_load(open("model_config.yaml"))
 print(model_config)
 model0 = Model(**model_config)
 
 # checkpoint loading
-checkpoint = torch.load('models/super_small_model/model_weights/model_epoch_60.pth', map_location=torch.device('cpu'))
+checkpoint = torch.load('checkpoint.pt', map_location=torch.device('cpu'))
 model0.load_state_dict(checkpoint)
 #model0.load_state_dict(checkpoint["model"])
 
