@@ -67,6 +67,9 @@ class Model(nn.Module):
         self.board = None
         self.pgn = None
         self.policy = None
+    
+    def load_state_dict(self, *args, **kwargs):
+        self.model.load_state_dict(*args, **kwargs)
 
     def forward(self, x):
         return self.model(x)
@@ -90,13 +93,13 @@ class Model(nn.Module):
                 tensor_input = torch.from_numpy(
                     board_to_leela_input(self.board).astype("float32")
                 )
-                q, policy_output = self.model.forward(tensor_input)
+                policy_output, q = self.model.forward(tensor_input)
                 policy = policy_output.numpy().flatten()
                 self.policy = leela_policy_to_uci_moves(policy, flip=(self.board.turn == chess.BLACK))
 
                 print("Analyzed new board")
                 print(self.board.unicode())
-                print("Q: ", q)
+                #print("Q: ", q)
                 print("Best moves:", Counter(self.policy).most_common(5))
         
         uci_move = self.board.parse_san(move).uci()
